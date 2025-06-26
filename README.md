@@ -388,7 +388,7 @@ if __name__ == "__main__":
   ```
   or via CLI:
   ```bash
-  shiva run
+  shiva daemon run
   ```
 
 - **Configuration**:  
