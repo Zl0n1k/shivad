@@ -403,24 +403,9 @@ if __name__ == "__main__":
 
 ---
 
-## Security and Best Practices
+## License
 
-- **Never commit real secrets** in config files.
-- Use environment variables for sensitive data.
-- All YAML loading uses `SafeLoader`.
-- Logging is handled by loguru and can be integrated with Sentry.
-
----
-
-## Contributing
-
-- Follow the modular structure for new dispatchers, drivers, workers, and protocols.
-- Add CLI commands using Typer.
-- Document new modules and update the YAML config example as needed.
-
----
-
-For more details, see the [README.md](README.md) and [SECURITY_REPORT.md](SECURITY_REPORT.md).
+This project is licensed under the MIT License. See the LICENSE file for details.
 
 ---
 
