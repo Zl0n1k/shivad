@@ -1,0 +1,28 @@
+.idea/
+venv/
+.venv/
+.envrc*
+.vim*
+.vscode*
+dist/
+
+### Python template
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.sublime-project
+*.sublime-workspace
+config_LOCAL*
+*.settings_local.py
+config.yml
+poetry.lock
+.DS_Store
+dist/*
+shiva.egg*
+
+rabbit/log/
+
+*.egg-info/
+
+

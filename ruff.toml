@@ -1,0 +1,13 @@
+# Same as Black or kinda.
+line-length = 120
+indent-width = 4
+
+# Assume Python 3.12
+target-version = "py312"
+
+[format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

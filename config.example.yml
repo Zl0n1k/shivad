@@ -1,0 +1,101 @@
+app_name: shiva_test
+
+# Common settings
+common:
+    uvloop: True
+    coro_num: 1
+    modules_path: './modules' # Modules folder path('./modules by default').
+
+# Logging(default) can be overwritten by argument --level
+logging:
+    level: DEBUG
+    sentry:
+        dsn: <sentry_dsn>
+        environment: 'LOCAL' # Sentry environment
+
+# List of all availble databases. Supported drivers: ['postgres', 'redis']
+# User custom db drivers should be placed in './drivers/databases'
+connections:
+    postgres:
+        driver: postgres
+        config:
+            dsn: postgresql://postgres:@127.0.0.1:5432/mydb
+            pool_min: 1
+            pool_max: 50
+            max_inactive_connection_lifetime: 300
+            max_queries: 20
+    redis:
+        driver: redis
+        config:
+            dsn: redis://127.0.0.1:6379/0
+            minsize: 1
+            maxsize: 1
+        # driver: redis
+        # config:
+        #     dsn: redis://127.0.0.1:6379/0
+        #     minsize: 1
+        #     maxsize: 1
+    rmq_default:
+        driver: rmq
+        config:
+            dsn: amqp://guest:guest@127.0.0.1:5672/myvenv
+
+# User custom esb drivers should be placed in './drivers/esb'
+dispatchers:
+    web:
+        name: web
+        dispatcher: dispatcher_web
+        enabled: true
+    daemon_root_main:
+        name: daemon_root_main
+        dispatcher: daemon_root
+        enabled: true
+        policy: CONFIG
+        # policy: ALL
+        coro: 1
+        config:
+            echo: I'm alive!
+    shiva_bench:
+        name: shiva_bench
+        dispatcher: rmq
+        connection: rmq_default
+        proto: JSON_Routed_BPM
+        # proto: JSON_UnroutedALL
+        enabled: false
+        coro: 1
+        config:
+            exchanges:
+                ESB:
+                    config:
+                        type: topic
+                        durable: true
+                    queues:
+                        shiva_benchmark:
+                            coro: 5
+                            config:
+                                prefetch: 1
+                                arguments:
+                                    auto_delete: false
+                                    durable: true
+                                additional:
+                                    max-length: 1000
+                                # overflow: reject-publish
+                                # x-dead-letter-exchange: rmq_test_in_DLX
+                            bindings:
+                                - shiva.bench
+# Workers
+workers:
+    waiter_daemon:
+        name: waiter1
+        coro: 1 # Optional coroutines number(Daemon only)
+        enabled: true
+        worker: waiter_daemon
+        dispatcher: daemon_root_main
+        config:
+            echo: Shit!
+        depends:
+            databases:
+                - postgres
+            esb:
+                - rmq
+
