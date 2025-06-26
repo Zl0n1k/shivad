@@ -1,5 +1,5 @@
 [project]
-name = "shiva"
+name = "shivad"
 version = "0.4.16"
 description = "A modern, async Python framework for distributed systems and microservices."
 readme = "README.md"

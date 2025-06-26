@@ -4,6 +4,14 @@
 
 **Shiva** is a modern, async Python framework for distributed systems and microservices. It provides a modular architecture for building scalable, event-driven applications, supporting protocols like RMQ, web APIs, metrics, and more. Shiva is built around the concept of **dispatchers**, **protocols**, **workers**, and **drivers**, enabling flexible orchestration of background tasks, message processing, and service integration.
 
+## INSTALLATION
+
+To install Shiva, simply run:
+
+```bash
+pip install shivad
+```
+
 ---
 
 ## Core Concept: Dispatcher → Protocol → Workers + Drivers
