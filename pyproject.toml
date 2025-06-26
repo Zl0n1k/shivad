@@ -3,7 +3,7 @@ name = "shivad"
 version = "0.4.16"
 description = "A modern, async Python framework for distributed systems and microservices."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 authors = [
   { name = "Boris Soldatov", email = "djsaff@gmail.com" }
 ]
