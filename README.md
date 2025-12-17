@@ -85,7 +85,7 @@ shiva/
 ### Drivers
 
 - **Postgres** (`shiva/drivers/databases/postgres.py`): Asyncpg-based connection pool.
-- **Redis** (`shiva/drivers/databases/redis.py`): Aioredis-based connection pool.
+- **Redis** (`shiva/drivers/databases/redis.py`): Redis (async) connection pool.
 - **MongoDB** (`shiva/drivers/databases/mongodb.py`): Motor-based async MongoDB client.
 - **S3** (`shiva/drivers/api/s3_aiobotocore.py`): Async S3 client using aiobotocore.
 
@@ -341,7 +341,7 @@ waiter_daemon:
 
 ## Dependencies
 
-- **Core**: FastAPI, Uvicorn, aiomisc, aio-pika, aioredis, asyncpg, PyYAML, orjson, loguru, sentry-sdk, flatdict, typer, art, marshmallow, motor, aiobotocore, prometheus-client, mako, starlette, fastapi-utils.
+- **Core**: FastAPI, Uvicorn, aiomisc, aio-pika, redis, asyncpg, PyYAML, orjson, loguru, sentry-sdk, flatdict, typer, art, marshmallow, motor, aiobotocore, prometheus-client, mako, starlette, fastapi-utils.
 - **Dev**: ipython (optional).
 
 ---

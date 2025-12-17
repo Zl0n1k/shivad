@@ -1,4 +1,4 @@
-import aioredis
+from redis import asyncio as aioredis
 from loguru import logger
 from marshmallow import Schema, ValidationError, fields
 from shiva.common.driver import BaseDriver
@@ -23,14 +23,14 @@ class Redis(BaseDriver):
         """
         self.validate()
         dsn = self.config.pop('dsn')
-        self.pool = await aioredis.create_pool(dsn, **self.config)
+        max_connections = self.config.get('maxsize', 10)
+        connection_pool = aioredis.ConnectionPool.from_url(
+            dsn,
+            max_connections=max_connections
+        )
+        self.pool = aioredis.Redis(connection_pool=connection_pool)
         return self.pool
-        # dsn = self.config.pop('dsn')
-        # max_connections = self.config.get('maxsize', 10)
-        # connection_pool = aioredis.ConnectionPool.from_url(dsn, max_connections=max_connections)
-        # self.pool = aioredis.Redis(connection_pool=connection_pool)
-        # return self.pool
 
     async def stop(self):
-        logger.warning
-        await self.pool.close()
+        logger.warning("Closing Redis connection pool")
+        await self.pool.aclose()
