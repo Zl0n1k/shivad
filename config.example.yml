@@ -1,5 +1,15 @@
 app_name: shiva_test
 
+# Scopes configuration (optional)
+# Load additional scopes from installed packages
+# Order: shiva -> packages -> user
+scopes:
+    packages: []
+    # Example:
+    # packages:
+    #   - my_shiva_extension
+    #   - another_package
+
 # Common settings
 common:
     uvloop: True

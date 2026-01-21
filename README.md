@@ -273,11 +273,49 @@ workers:
 
 #### Key Parameters
 
+- **scopes** (optional): Load additional modules from installed packages
 - **common**: General settings (uvloop, coroutine count, modules path)
 - **logging**: Log level, Sentry integration
 - **connections**: Database/message broker connections (driver, DSN, pool settings)
 - **dispatchers**: Dispatcher instances (type, connection, protocol, policy, coroutines, config)
 - **workers**: Worker instances (name, coroutines, enabled, worker class, dispatcher, config, dependencies)
+
+#### Extending Shiva with Package Scopes
+
+You can extend Shiva by loading drivers, workers, dispatchers, and protocols from installed packages. This allows you to create reusable extensions.
+
+**Loading Order**: `shiva` (built-in) → `packages` (installed) → `user` (local)
+
+**Example:**
+
+```yaml
+scopes:
+  packages:
+    - my_shiva_extension
+    - another_extension
+```
+
+For a package `my_shiva_extension`, Shiva will attempt to load:
+- `my_shiva_extension.drivers`
+- `my_shiva_extension.workers`
+- `my_shiva_extension.dispatchers`
+- `my_shiva_extension.proto`
+- `my_shiva_extension.data_types`
+
+**Package Structure Example:**
+
+```
+my_shiva_extension/
+  drivers/
+    databases/
+      my_custom_db.py
+  workers/
+    my_worker.py
+  dispatchers/
+    my_dispatcher.py
+```
+
+Modules are deduplicated by file path - first found wins. Missing scopes are silently skipped.
 
 #### Example: RMQ Dispatcher Section
 

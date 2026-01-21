@@ -1,4 +1,5 @@
 import asyncio
+import importlib
 import os
 
 import yaml
@@ -40,15 +41,60 @@ class ShivaCLI:
         await self.croot.prepare()
         self.connections = self.croot.connections
 
+    def _validate_scope_packages(self, packages):
+        """
+        Validate that scope packages are installed.
+
+        Args:
+            packages: List of package names to validate
+
+        Returns:
+            List of valid package names
+        """
+        valid_packages = []
+        for package in packages:
+            try:
+                importlib.import_module(package)
+                valid_packages.append(package)
+                logger.info(f'Scope package "{package}" found')
+            except ImportError:
+                logger.warning(f'Scope package "{package}" not found, skipping')
+        return valid_packages
+
     def load_scopes(self, scopes):
-        logger.info("Loading shiva + user scopes...")
+        logger.info("Loading shiva + packages + user scopes...")
+
+        # Get additional packages from config
+        scope_packages = self.config.get('scopes', {}).get('packages', [])
+        valid_packages = self._validate_scope_packages(scope_packages)
 
         for scope in scopes:
-            sc_list = (f"{SHIVA_ROOT}.{scope}", scope)
-            logger.info(f"Loading scopes: {sc_list}")
+            # Build scope loading chain
+            # Order: shiva -> packages -> user
+            sc_list = []
+
+            # 1. Built-in shiva modules
+            sc_list.append(f"{SHIVA_ROOT}.{scope}")
+
+            # 2. Modules from installed packages
+            for package in valid_packages:
+                sc_list.append(f"{package}.{scope}")
+
+            # 3. User modules
+            sc_list.append(scope)
+
+            # TODO: Current implementation loads first found module and skips duplicates.
+            # If user modules need to override package modules, reverse the order.
+            # See: shiva/common/modules_helper.py:Scope.load()
+
+            logger.info(f'Scope "{scope}" loading order:')
+            for idx, path in enumerate(sc_list, 1):
+                logger.info(f"  {idx}. {path}")
+
             self.scopes[scope] = Scope(scope, sc_list)
+
         for name, scope in self.scopes.items():
-            logger.info(f"{name}: {len(scope.scopes)}")
+            logger.info(f"{name}: {len(scope.scopes)} modules loaded")
 
     async def run(self):
         await self.prepare()
