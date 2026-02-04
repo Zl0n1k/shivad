@@ -65,23 +65,23 @@ class ShivaCLI:
         logger.info("Loading shiva + packages + user scopes...")
 
         # Get additional packages from config
-        scope_packages = self.config.get('scopes', {}).get('packages', [])
+        scope_packages = self.config.get("scopes", {}).get("packages", [])
         valid_packages = self._validate_scope_packages(scope_packages)
 
         for scope in scopes:
             # Build scope loading chain
-            # Order: shiva -> packages -> user
+            # Order: shiva -> user -> packages
             sc_list = []
 
             # 1. Built-in shiva modules
             sc_list.append(f"{SHIVA_ROOT}.{scope}")
 
-            # 2. Modules from installed packages
+            # 2. User modules
+            sc_list.append(scope)
+
+            # 3. Modules from installed packages
             for package in valid_packages:
                 sc_list.append(f"{package}.{scope}")
-
-            # 3. User modules
-            sc_list.append(scope)
 
             # TODO: Current implementation loads first found module and skips duplicates.
             # If user modules need to override package modules, reverse the order.

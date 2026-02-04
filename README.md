@@ -284,7 +284,7 @@ workers:
 
 You can extend Shiva by loading drivers, workers, dispatchers, and protocols from installed packages. This allows you to create reusable extensions.
 
-**Loading Order**: `shiva` (built-in) → `packages` (installed) → `user` (local)
+**Loading Order**: `shiva` (built-in) → `user` (local) → `packages` (installed)
 
 **Example:**
 
