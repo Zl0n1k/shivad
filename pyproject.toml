@@ -1,9 +1,9 @@
 [project]
 name = "shivad"
-version = "0.5.0"
+version = "0.5.1"
 description = "A modern, async Python framework for distributed systems and microservices."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 authors = [{ name = "Boris Soldatov", email = "djsaff@gmail.com" }]
 license = "MIT"
 dependencies = [
@@ -28,7 +28,6 @@ dependencies = [
   "pytest>=8.4.1",
   "pytest-asyncio>=1.0.0",
   "PyYAML>=6.0.1,<7.0.0",
-  "redis>=5.0.0,<6.0.0",
   "sentry-sdk>=2.47.0,<3.0.0",
   "setuptools>=80.9.0",
   "starlette>=0.50.0,<0.51.0",
@@ -36,10 +35,11 @@ dependencies = [
   "typer>=0.20.0,<0.21.0",
   "uvicorn>=0.38.0,<0.39.0",
   "uvloop>=0.21.0,<1.0.0; sys_platform == 'darwin' or sys_platform == 'linux'",
+  "redis>=7.1.1",
 ]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Operating System :: OS Independent",
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
