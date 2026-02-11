@@ -10,7 +10,6 @@ import platform
 import signal
 from asyncio.exceptions import CancelledError
 
-import flatdict
 import uvicorn
 import yaml
 from fastapi import FastAPI
@@ -28,16 +27,16 @@ config_path = None
 
 
 # # Setup events
-@app.on_event('shutdown')
+@app.on_event("shutdown")
 async def shutdown_daemon():
-    logger.info('Shutting down')
+    logger.info("Shutting down")
     await app.shiva.stop_async()
-    logger.info('All instances stopped!')
+    logger.info("All instances stopped!")
 
 
-@app.on_event('startup')
+@app.on_event("startup")
 async def run_daemon(*args, **kwargs):
-    logger.warning('Starting setup...')
+    logger.warning("Starting setup...")
     # loop = asyncio.get_running_loop()
     config_helper = Config(config_path)
     config = config_helper.get_config()
@@ -54,7 +53,7 @@ async def run_daemon(*args, **kwargs):
 
     # Run daemon
     loop.create_task(daemon.run())
-    if platform.system() != 'Windows':
+    if platform.system() != "Windows":
         loop.add_signal_handler(signal.SIGINT, daemon.stop)
         loop.add_signal_handler(signal.SIGHUP, daemon.stop)
         loop.add_signal_handler(signal.SIGTERM, daemon.stop)
@@ -64,26 +63,27 @@ def main(config):
     try:
         import os
         import sys
-        print(f'CWD: {os.getcwd()}')
+
+        print(f"CWD: {os.getcwd()}")
         sys.path.append(os.getcwd())
         global config_path
         if config:
             config_path = config
-        config_path = config_path or os.environ.get('SHIVA_CONFIG') or './config.yml'
+        config_path = config_path or os.environ.get("SHIVA_CONFIG") or "./config.yml"
 
         # Get port/host if available
         config_helper = Config(config_path)
         config = config_helper.get_config()
         port = 8085
-        host = '0.0.0.0'
+        host = "0.0.0.0"
 
-        if type(config.get('common')) == dict:
-            web = config['common'].get('web')
+        if type(config.get("common")) == dict:
+            web = config["common"].get("web")
             if web:
-                host = web.get('host', host)
-                port = web.get('port', port)
+                host = web.get("host", host)
+                port = web.get("port", port)
 
-        logger.info(f'Running web instance on: {host}:{port}')
+        logger.info(f"Running web instance on: {host}:{port}")
         uvicorn.run("shiva.main:app", host=host, port=port, log_level="error")
     except CancelledError:
-        logger.warning('Web application stopped!')
+        logger.warning("Web application stopped!")

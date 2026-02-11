@@ -24,10 +24,6 @@ class ShivaCLI:
         config_helper = Config(config_path)
         config = config_helper.get_config()
         return config
-        # with open(cfg, encoding="utf8") as f:
-        #     # config = flatdict.FlatDict(yaml.load(f, Loader=yaml.SafeLoader))
-        #     config = yaml.load(f, Loader=yaml.SafeLoader)
-        #     return config
 
     async def prepare(self):
         logger.info("Preparing...")
