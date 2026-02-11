@@ -1,6 +1,6 @@
 [project]
 name = "shivad"
-version = "0.5.1"
+version = "0.5.2"
 description = "A modern, async Python framework for distributed systems and microservices."
 readme = "README.md"
 requires-python = ">=3.13"
