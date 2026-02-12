@@ -9,7 +9,8 @@ from sentry_sdk.integrations.logging import BreadcrumbHandler, EventHandler, Log
 
 def setup_loggers(config):
     logger.remove()
-    logger.add(sys.stdout, colorize=True, level=config["logging"]["level"])
+    loguru_config = config["logging"].get("config", {})
+    logger.add(sys.stdout, **loguru_config)
 
     if config["logging"].get("sentry"):
         sentry_env = "DEFAULT"

@@ -18,7 +18,10 @@ common:
 
 # Logging(default) can be overwritten by argument --level
 logging:
-    level: DEBUG
+    config:
+        level: DEBUG
+        colorize: false
+        serialize: true
     sentry:
         dsn: <sentry_dsn>
         environment: 'LOCAL' # Sentry environment
