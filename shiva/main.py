@@ -26,10 +26,10 @@ config_path = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Lifespan context manager для управления startup и shutdown событиями.
-    Код до yield выполняется при startup, после yield - при shutdown.
+    Lifespan context manager for managing startup and shutdown events.
+    Code before yield executes at startup, after yield - at shutdown.
     """
-    # ========== STARTUP (код до yield) ==========
+    # ========== STARTUP (code before yield) ==========
     logger.warning("Starting setup...")
     config_helper = Config(config_path)
     config = config_helper.get_config()
@@ -46,21 +46,21 @@ async def lifespan(app: FastAPI):
 
     # Run daemon
     loop.create_task(daemon.run())
-    if platform.system() != "Windows":
-        loop.add_signal_handler(signal.SIGINT, daemon.stop)
-        loop.add_signal_handler(signal.SIGHUP, daemon.stop)
-        loop.add_signal_handler(signal.SIGTERM, daemon.stop)
-    
-    # ========== YIELD - приложение работает ==========
+    # if platform.system() != "Windows":
+    #     loop.add_signal_handler(signal.SIGINT, daemon.stop)
+    #     loop.add_signal_handler(signal.SIGHUP, daemon.stop)
+    #     loop.add_signal_handler(signal.SIGTERM, daemon.stop)
+
+    # ========== YIELD - application is running ==========
     yield
-    
-    # ========== SHUTDOWN (код после yield) ==========
+
+    # ========== SHUTDOWN (code after yield) ==========
     logger.info("Shutting down")
     await app.shiva.stop_async()
     logger.info("All instances stopped!")
 
 
-# App init с lifespan
+# App init with lifespan
 app = FastAPI(debug=False, lifespan=lifespan)
 app.logger = logger
 app.shiva = None
@@ -72,7 +72,7 @@ def main(config):
         import sys
 
         print(f"CWD: {os.getcwd()}")
-        sys.path.append(os.getcwd())
+        sys.path.insert(0, os.getcwd())
         global config_path
         if config:
             config_path = config
