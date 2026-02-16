@@ -9,8 +9,8 @@ import os
 import platform
 import signal
 from asyncio.exceptions import CancelledError
+from contextlib import asynccontextmanager
 
-import flatdict
 import uvicorn
 import yaml
 from fastapi import FastAPI
@@ -20,25 +20,17 @@ from loguru import logger
 from shiva.common.daemon import Shiva
 from shiva.common.logging import setup_loggers
 
-# App init
-app = FastAPI(debug=False)
-app.logger = logger
-app.shiva = None
 config_path = None
 
 
-# # Setup events
-@app.on_event('shutdown')
-async def shutdown_daemon():
-    logger.info('Shutting down')
-    await app.shiva.stop_async()
-    logger.info('All instances stopped!')
-
-
-@app.on_event('startup')
-async def run_daemon(*args, **kwargs):
-    logger.warning('Starting setup...')
-    # loop = asyncio.get_running_loop()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager для управления startup и shutdown событиями.
+    Код до yield выполняется при startup, после yield - при shutdown.
+    """
+    # ========== STARTUP (код до yield) ==========
+    logger.warning("Starting setup...")
     config_helper = Config(config_path)
     config = config_helper.get_config()
     # Logging
@@ -54,36 +46,51 @@ async def run_daemon(*args, **kwargs):
 
     # Run daemon
     loop.create_task(daemon.run())
-    if platform.system() != 'Windows':
+    if platform.system() != "Windows":
         loop.add_signal_handler(signal.SIGINT, daemon.stop)
         loop.add_signal_handler(signal.SIGHUP, daemon.stop)
         loop.add_signal_handler(signal.SIGTERM, daemon.stop)
+    
+    # ========== YIELD - приложение работает ==========
+    yield
+    
+    # ========== SHUTDOWN (код после yield) ==========
+    logger.info("Shutting down")
+    await app.shiva.stop_async()
+    logger.info("All instances stopped!")
+
+
+# App init с lifespan
+app = FastAPI(debug=False, lifespan=lifespan)
+app.logger = logger
+app.shiva = None
 
 
 def main(config):
     try:
         import os
         import sys
-        print(f'CWD: {os.getcwd()}')
+
+        print(f"CWD: {os.getcwd()}")
         sys.path.append(os.getcwd())
         global config_path
         if config:
             config_path = config
-        config_path = config_path or os.environ.get('SHIVA_CONFIG') or './config.yml'
+        config_path = config_path or os.environ.get("SHIVA_CONFIG") or "./config.yml"
 
         # Get port/host if available
         config_helper = Config(config_path)
         config = config_helper.get_config()
         port = 8085
-        host = '0.0.0.0'
+        host = "0.0.0.0"
 
-        if type(config.get('common')) == dict:
-            web = config['common'].get('web')
+        if type(config.get("common")) == dict:
+            web = config["common"].get("web")
             if web:
-                host = web.get('host', host)
-                port = web.get('port', port)
+                host = web.get("host", host)
+                port = web.get("port", port)
 
-        logger.info(f'Running web instance on: {host}:{port}')
+        logger.info(f"Running web instance on: {host}:{port}")
         uvicorn.run("shiva.main:app", host=host, port=port, log_level="error")
     except CancelledError:
-        logger.warning('Web application stopped!')
+        logger.warning("Web application stopped!")

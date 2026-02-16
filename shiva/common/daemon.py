@@ -119,52 +119,34 @@ class Shiva:
             # logger.info(f'RUNNING: {self}')
             # logger.info('*' * 40)
             await asyncio.sleep(2)
-        self.loop.create_task(self.stop_async())
+        # self.loop.create_task(self.stop_async())
+        await self.stop_async()
         logger.info("STOP_ASYNC DONE!")
 
     async def stop_async(self):
         logger.info("Stopping...")
         logger.info("Waiting for daemon...")
-        # print(self.droot.dispatchers)
         for d_name, d in self.droot.dispatchers.items():
             logger.warning(f"Trying to stop: {d_name} instances...")
             for inst_name, inst_obj in d.items():
                 logger.warning(f"Stopping: {d_name}->{inst_name}")
                 await inst_obj.stop()
         current_task = asyncio.current_task()
-        # print(current_task)
-        # print('*' * 80)
         tasks = [task for task in asyncio.all_tasks() if task is not current_task]
         for task in tasks:
-            # print(f'T: {task}')
-            # if hasattr(task, "get_name"):
-            #     task_name = task.get_name()
-            #     if task_name and any(name in task_name.lower() for name in ["lifespan", "uvicorn"]):
-            #         logger.info(f"SYSTEM_TASK: {task_name}")
-            #     else:
             cancel = True
-            # service_names = ["LifespanOn.main", "LifespanOn", "Server.serve", "Shiva.wait_coro"]
-            service_names = ["LifespanOn.main", "LifespanOn", "Shiva.wait_coro", "Server.serve"]
+            service_names = ["LifespanOn.main", "LifespanOn", "Server.serve", "Shiva.wait_coro"]
             coro_name = str(task._coro)
             for s in service_names:
                 if coro_name.find(s) >= 0:
-                    # print(coro_name.find(s))
                     cancel = False
             if cancel:
-                logger.warning(f"CANCELING TASK: {str(task._coro)}")
+                logger.info(f"CANCELING TASK: {str(task._coro)}")
                 task.cancel()
             else:
-                logger.warning(f"PASSING TASK: {str(task._coro)}")
-            # task.cancel()
-            # print('>>CANCELED')
-        # print('!!!!!!!GATHER!!!!!!')
-        # await asyncio.gather(*tasks, return_exceptions=True)
+                logger.info(f"PASSING TASK: {str(task._coro)}")
         logger.info("Shiva stopped.")
 
     def stop(self):
         self.running = False
         logger.warning("Stop command received!")
-        # while not self.stopped:
-        #     logger.warning('Waiting for Shiva to stop...')
-        #     time.sleep(1)
-        # sys.exit(0)
