@@ -9,6 +9,7 @@ import os
 import platform
 import signal
 from asyncio.exceptions import CancelledError
+from contextlib import asynccontextmanager
 
 import uvicorn
 import yaml
@@ -19,25 +20,17 @@ from loguru import logger
 from shiva.common.daemon import Shiva
 from shiva.common.logging import setup_loggers
 
-# App init
-app = FastAPI(debug=False)
-app.logger = logger
-app.shiva = None
 config_path = None
 
 
-# # Setup events
-@app.on_event("shutdown")
-async def shutdown_daemon():
-    logger.info("Shutting down")
-    await app.shiva.stop_async()
-    logger.info("All instances stopped!")
-
-
-@app.on_event("startup")
-async def run_daemon(*args, **kwargs):
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for managing startup and shutdown events.
+    Code before yield executes at startup, after yield - at shutdown.
+    """
+    # ========== STARTUP (code before yield) ==========
     logger.warning("Starting setup...")
-    # loop = asyncio.get_running_loop()
     config_helper = Config(config_path)
     config = config_helper.get_config()
     # Logging
@@ -53,10 +46,24 @@ async def run_daemon(*args, **kwargs):
 
     # Run daemon
     loop.create_task(daemon.run())
-    if platform.system() != "Windows":
-        loop.add_signal_handler(signal.SIGINT, daemon.stop)
-        loop.add_signal_handler(signal.SIGHUP, daemon.stop)
-        loop.add_signal_handler(signal.SIGTERM, daemon.stop)
+    # if platform.system() != "Windows":
+    #     loop.add_signal_handler(signal.SIGINT, daemon.stop)
+    #     loop.add_signal_handler(signal.SIGHUP, daemon.stop)
+    #     loop.add_signal_handler(signal.SIGTERM, daemon.stop)
+
+    # ========== YIELD - application is running ==========
+    yield
+
+    # ========== SHUTDOWN (code after yield) ==========
+    logger.info("Shutting down")
+    await app.shiva.stop_async()
+    logger.info("All instances stopped!")
+
+
+# App init with lifespan
+app = FastAPI(debug=False, lifespan=lifespan)
+app.logger = logger
+app.shiva = None
 
 
 def main(config):
@@ -65,7 +72,7 @@ def main(config):
         import sys
 
         print(f"CWD: {os.getcwd()}")
-        sys.path.append(os.getcwd())
+        sys.path.insert(0, os.getcwd())
         global config_path
         if config:
             config_path = config
